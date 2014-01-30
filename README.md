@@ -1,7 +1,7 @@
 arcanum
 =======
 
-An asymmetric encryption based file storage service.
+An asymmetric encryption based file storage service. In Arcanum, the server plays very little role. The client handles encryption as well as decryption. The server merely handles file storage and user management. This ensures that even if the server is compromised, the user data is not.
 
 You have to run createdb.py to construct the database first.
 
