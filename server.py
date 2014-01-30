@@ -4,7 +4,7 @@ import werkzeug
 from flask.ext.httpauth import HTTPBasicAuth
 from flask.ext.sqlalchemy import SQLAlchemy
 from ofs.local import PTOFS
-import base64
+import hashlib
 app=Flask(__name__)
 api = Api(app)
 auth = HTTPBasicAuth()
@@ -35,6 +35,11 @@ def get_pw(username):
     if user:
         return user.password
     return None
+
+@auth.hash_password
+def hash_pw(password):
+    return hashlib.md5(password).hexdigest()
+
 @auth.error_handler
 def unauthorized():
     return make_response(jsonify( { 'message': 'Unauthorized access' } ), 401)
@@ -98,7 +103,7 @@ class CreateUser(Resource):
 			# key = "".join(lst)
 			key=":".join(det[3:])
 			uuid=o.claim_bucket()
-			user=User(usern,email,passw,key,uuid)
+			user=User(usern,email,hashlib.md5(passw),key,uuid)
 			db.session.add(user)
 			db.session.commit()
 			return {"Details":detail,"key":key}
