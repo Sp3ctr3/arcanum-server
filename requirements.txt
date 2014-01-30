@@ -1,0 +1,6 @@
+flask
+flask-restful
+flask-httpauth
+flask-restful
+flask-sqlalchemy
+ofs
