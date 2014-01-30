@@ -103,7 +103,7 @@ class CreateUser(Resource):
 			# key = "".join(lst)
 			key=":".join(det[3:])
 			uuid=o.claim_bucket()
-			user=User(usern,email,hashlib.md5(passw),key,uuid)
+			user=User(usern,email,hashlib.md5(passw).hexdigest(),key,uuid)
 			db.session.add(user)
 			db.session.commit()
 			return {"Details":detail,"key":key}
