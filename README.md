@@ -9,6 +9,7 @@ Running
 -------
 First time:
 ```shell
+pip install -r requirements.txt
 python createdb.py
 ```
 Then on:
