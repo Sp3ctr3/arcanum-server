@@ -4,6 +4,7 @@ import werkzeug
 from flask.ext.httpauth import HTTPBasicAuth
 from flask.ext.sqlalchemy import SQLAlchemy
 from ofs.local import PTOFS
+import argparse
 import hashlib
 app=Flask(__name__)
 api = Api(app)
@@ -116,4 +117,11 @@ api.add_resource(CreateUser,'/create/<path:detail>')
 api.add_resource(Authenticate,'/auth/')
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0')
+	parser = argparse.ArgumentParser(description='Arcanum server',prefix_chars='-+/',)
+	parser.add_argument('-H','--host', help='Host name for Arcanum server',nargs='?', default='0.0.0.0')
+	parser.add_argument('+ssl', action="store_true", default=None)
+	args = parser.parse_args()
+	if args.ssl:
+	    app.run(host=args.host,ssl_context=('key.crt', 'key.key'))
+	else:
+		app.run(host=args.host)
