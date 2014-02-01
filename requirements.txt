@@ -3,3 +3,4 @@ flask-restful
 flask-httpauth
 flask-sqlalchemy
 ofs
+pairtree
