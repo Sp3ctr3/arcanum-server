@@ -98,6 +98,9 @@ class CreateUser(Resource):
 		det=detail.split(":")
 		if len(det)==7:
 			usern=det[0]
+			user=User.query.filter_by(username=usern).first()
+			if user:
+				return {"Error":"Username exists"}
 			passw=det[1]
 			email=det[2]
 			# lst = [random.choice(string.ascii_letters + string.digits) for n in xrange(30)]
