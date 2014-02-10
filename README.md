@@ -32,9 +32,15 @@ python server.py -H host
 Dependencies
 ------------
 flask
+
 flask-restful
+
 flask-httpauth
+
 flask-restful
+
 flask-sqlalchemy
+
 ofs
+
 pairtree
