@@ -81,9 +81,6 @@ class ReceiveAPI(Resource):
 			elif int(id) < len(files)+1:
 				label=o.list_labels(user.uuid)[int(id)-1]
 				return send_file(o.get_url(user.uuid,label)[7:])
-				# base=base64.encodestring(data)
-				# print len(base),len(data)
-				# return base
 			else:
 				return "Invalid id"
 	def post(self,id):
@@ -93,6 +90,17 @@ class Authenticate(Resource):
 
 	def get(self):
 		return 200
+class Change(Resource):
+	decorators = [auth.login_required]
+
+	def get(self,id):
+		user=User.query.filter_by(username=auth.username()).first()
+		if user.password==hashlib.md5(id.split("/")[0]).hexdigest():
+			user.password=hashlib.md5(id.split("/")[1]).hexdigest()
+			db.session.commit()
+			return "Password successfully changed"
+		else:
+			return "Old password not accepted"
 class CreateUser(Resource):
 	def get(self,detail):
 		det=detail.split(":")
@@ -103,8 +111,6 @@ class CreateUser(Resource):
 				return {"Error":"Username exists"}
 			passw=det[1]
 			email=det[2]
-			# lst = [random.choice(string.ascii_letters + string.digits) for n in xrange(30)]
-			# key = "".join(lst)
 			key=":".join(det[3:])
 			uuid=o.claim_bucket()
 			user=User(usern,email,hashlib.md5(passw).hexdigest(),key,uuid)
@@ -118,6 +124,7 @@ api.add_resource(SendAPI,'/send/<path:id>')
 api.add_resource(ReceiveAPI,'/receive/<path:id>')
 api.add_resource(CreateUser,'/create/<path:detail>')
 api.add_resource(Authenticate,'/auth/')
+api.add_resource(Change,'/change/<path:id>')
 
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser(description='Arcanum server',prefix_chars='-+/',)
