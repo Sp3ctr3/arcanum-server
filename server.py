@@ -73,7 +73,9 @@ class ReceiveAPI(Resource):
 
 	def get(self,id):
 		user=User.query.filter_by(username=auth.username()).first()
-		if user:
+		action=id.split("/")[0]
+		id=id.split("/")[1]
+		if user and action=="get":
 			files=o.list_labels(user.uuid)
 			print id
 			if id=="all":
@@ -83,6 +85,13 @@ class ReceiveAPI(Resource):
 				return send_file(o.get_url(user.uuid,label)[7:])
 			else:
 				return "Invalid id"
+		elif user and action=="delete":
+			files=o.list_labels(user.uuid)
+			if int(id) < len(files)+1:
+				label=o.list_labels(user.uuid)[int(id)-1]
+				o.del_stream(user.uuid,label)
+				return 200
+
 	def post(self,id):
 		pass
 class Authenticate(Resource):
