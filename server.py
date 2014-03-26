@@ -1,5 +1,6 @@
 from flask import Flask,make_response,jsonify,request,send_file
 from flask.ext.restful import Api,Resource,reqparse
+from flask.ext.restful.utils import cors
 import werkzeug
 from flask.ext.httpauth import HTTPBasicAuth
 from flask.ext.sqlalchemy import SQLAlchemy
@@ -8,6 +9,7 @@ import argparse
 import hashlib
 app=Flask(__name__)
 api = Api(app)
+# api.decorators=[cors.crossdomain(origin='*')]
 auth = HTTPBasicAuth()
 o=PTOFS()
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
@@ -61,12 +63,14 @@ class SendAPI(Resource):
 			lst=User.query.all()
 			for i in lst:
 				k.append(i.username)
+			k.remove("admin")
 			return k
 	def post(self,id):
 		details=id.split("/")
 		user=User.query.filter_by(username=details[0]).first()
 		uuid=user.uuid
-		o.put_stream(uuid,details[1],self.reqparse.parse_args()["file"].stream.read())
+		o.put_stream(uuid,details[1],self.reqparse.parse_args()["file"].stream.read(),params={"sign":details[2],"user":auth.username()})
+		print o.get_metadata(uuid,details[1])
 		return 200
 class ReceiveAPI(Resource):
 	decorators = [auth.login_required]
@@ -91,14 +95,17 @@ class ReceiveAPI(Resource):
 				label=o.list_labels(user.uuid)[int(id)-1]
 				o.del_stream(user.uuid,label)
 				return 200
+		elif user and action=="verify":
+			return o.get_metadata(user.uuid,o.list_labels(user.uuid)[int(id)-1])	
 
 	def post(self,id):
 		pass
 class Authenticate(Resource):
 	decorators = [auth.login_required]
-
 	def get(self):
 		return 200
+	# def options(self):
+	# 	pass
 class Change(Resource):
 	decorators = [auth.login_required]
 
